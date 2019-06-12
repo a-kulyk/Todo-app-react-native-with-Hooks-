@@ -35,7 +35,7 @@ export default function AppContainer() {
         setTodo(JSON.parse(value));
       }
     } catch (e) {
-      setTodo(null);
+      console.log({ catchOnGetting: e });
     }
   }
 
