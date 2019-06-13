@@ -54,11 +54,8 @@ export default function TodoList() {
 
   return (
     <View style={styles.container}>
-      {
-        <View>
-          {todos.length === 0 ? <Text style={styles.noItems}>No items to show</Text> : null}
-        </View>
-      }
+      {todos.length === 0 ? <Text style={styles.noItems}>No items to show</Text> : null}
+
       <ScrollView style={styles.container}>
         {getFilteredTodos().map(item => (
           <TodoCard
@@ -72,13 +69,15 @@ export default function TodoList() {
           />
         ))}
       </ScrollView>
-      <CreateTodo
-        toggleModal={toggleModal}
-        modalVisible={modalVisible}
-        addTodo={addTodo}
-        editTodo={editTodo}
-        itemToEdit={itemToEdit}
-      />
+      {modalVisible && (
+        <CreateTodo
+          toggleModal={toggleModal}
+          modalVisible={modalVisible}
+          addTodo={addTodo}
+          editTodo={editTodo}
+          itemToEdit={itemToEdit}
+        />
+      )}
       <FAB style={styles.fab} icon="add" color="white" onPress={toggleModal} />
     </View>
   );
@@ -104,6 +103,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#2980B9',
     right: 30,
-    bottom: 30,
+    bottom: 15,
   },
 });

@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import DatePicker from 'react-native-datepicker';
 import ImagePicker from 'react-native-image-picker';
-import ColorPalette from 'react-native-color-palette';
+import ColorPicker from './ColorPicker';
 import { Button } from 'react-native-paper';
-import { RED, GREEN, YELLOW, PURPLE, BLUE, DATE_FORMAT } from '../constants';
+import { RED, BLUE, DATE_FORMAT } from '../constants';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -31,12 +31,6 @@ export default function CreateTodo({ modalVisible, toggleModal, addTodo, editTod
       setDate(itemToEdit.date);
       setPhotoSource(itemToEdit.photoSource);
       setColor(itemToEdit.color);
-    } else {
-      setTitle('');
-      setDescription('');
-      setDate('');
-      setPhotoSource(null);
-      setColor(RED);
     }
   }, [itemToEdit, modalVisible]);
 
@@ -141,18 +135,6 @@ export default function CreateTodo({ modalVisible, toggleModal, addTodo, editTod
     );
   }
 
-  function renderColorPicker() {
-    return (
-      <ColorPalette
-        onChange={setColor}
-        value={color}
-        colors={[RED, GREEN, YELLOW, PURPLE, BLUE]}
-        title=""
-        icon={<Icon name="check" size={15} color="white" />}
-      />
-    );
-  }
-
   return (
     <Modal
       animationType="slide"
@@ -183,8 +165,10 @@ export default function CreateTodo({ modalVisible, toggleModal, addTodo, editTod
           {renderImagePicker()}
 
           <View style={{ marginBottom: 50 }}>
-            <Text style={{ paddingBottom: 20 }}>Add color tag:</Text>
-            {renderColorPicker()}
+            <Text style={{ paddingBottom: 15 }}>Add color tag:</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              <ColorPicker onSelect={setColor} selectedColor={color} />
+            </View>
           </View>
         </View>
         <View style={styles.buttons}>

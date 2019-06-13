@@ -3,13 +3,16 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import TodoList from './TodoList';
-import { BLUE, ALL, IN_PROGRESS, COMPLETED, OVERDUE, DATE_FORMAT } from './constants';
+import ColorPicker from './components/ColorPicker';
+import { BLUE, ALL, IN_PROGRESS, COMPLETED, OVERDUE, COLOR, DATE_FORMAT } from './constants';
 
 export const TodoContext = React.createContext();
 
 export default function AppContainer() {
   const [todos, setTodo] = useState([]);
-  const [filter, setFilter] = useState(ALL);
+  const [filter, setActiveFilter] = useState(ALL);
+  const [showColors, setShowColors] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('');
 
   useEffect(() => {
     getData();
@@ -53,40 +56,51 @@ export default function AppContainer() {
 
           return moment().isAfter(dueDate, 'day');
         });
+      case COLOR:
+        return todos.filter(item => item.color === selectedColor);
+      default:
+        return todos;
     }
   }
 
+  const setFilter = filter => {
+    setActiveFilter(filter);
+    if (showColors) {
+      setShowColors(false);
+    }
+  };
+
+  const openColorPicker = () => {
+    setShowColors(true);
+    setFilter(COLOR);
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.filter}>
-        <TouchableOpacity onPress={() => setFilter(ALL)}>
-          <Text
-            style={[
-              styles.tabItem,
-              filter === ALL ? { backgroundColor: BLUE, color: 'white' } : { color: BLUE },
-            ]}
-          >
-            All Tasks
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setFilter(IN_PROGRESS)}>
-          <Text style={[styles.tabItem, filter === IN_PROGRESS ? styles.activeTab : {}]}>
-            In progress
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setFilter(COMPLETED)}>
-          <Text style={[styles.tabItem, filter === COMPLETED ? styles.activeTab : {}]}>
-            Completed
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setFilter(OVERDUE)}>
-          <Text style={[styles.tabItem, filter === OVERDUE ? styles.activeTab : {}]}>Overdue</Text>
-        </TouchableOpacity>
-      </View>
-
       <TodoContext.Provider value={{ todos, setTodo, getFilteredTodos }}>
         <TodoList />
       </TodoContext.Provider>
+
+      {showColors && (
+        <View style={styles.colorPicker}>
+          <ColorPicker onSelect={setSelectedColor} selectedColor={selectedColor} />
+        </View>
+      )}
+      <View style={styles.filter}>
+        {[ALL, IN_PROGRESS, COMPLETED, OVERDUE, COLOR].map((filterable, idx) => (
+          <TouchableOpacity
+            onPress={() => {
+              filterable === COLOR ? openColorPicker() : setFilter(filterable);
+            }}
+            style={[styles.tabItem, filter === filterable ? styles.activeTab : {}]}
+            key={idx}
+          >
+            <Text style={filter === filterable ? { color: 'white' } : { color: BLUE }}>
+              {filterable}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 }
@@ -99,17 +113,21 @@ const styles = StyleSheet.create({
 
   filter: {
     flexDirection: 'row',
-    flexBasis: 50,
+    height: 30,
+    justifyContent: 'space-between',
   },
   tabItem: {
     flex: 1,
-    paddingTop: 14,
-    paddingHorizontal: 10,
-    color: BLUE,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 'auto',
   },
 
   activeTab: {
     backgroundColor: BLUE,
-    color: 'white',
+  },
+
+  colorPicker: {
+    flexDirection: 'row',
   },
 });

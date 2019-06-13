@@ -4,9 +4,10 @@ export const YELLOW = '#F6BF26';
 export const PURPLE = '#8E44AD';
 export const BLUE = '#2980B9';
 
-export const ALL = 'all';
-export const IN_PROGRESS = 'in_progress';
-export const COMPLETED = 'completed';
-export const OVERDUE = 'overdue';
+export const ALL = 'All';
+export const IN_PROGRESS = 'In Progress';
+export const COMPLETED = 'Completed';
+export const OVERDUE = 'Overdue';
+export const COLOR = 'By Color';
 
 export const DATE_FORMAT = 'DD-MM-YYYY';

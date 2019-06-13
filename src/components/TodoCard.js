@@ -27,11 +27,9 @@ export default function TodoCard({
         <Text style={styles.description}>{item.description}</Text>
         <View>{item.date ? <Text style={styles.date}>Deadline: {item.date}</Text> : null}</View>
       </View>
-      <View>
-        {item.photoSource && (
-          <Image source={item.photoSource} style={styles.photo} resizeMode="cover" />
-        )}
-      </View>
+      {item.photoSource && (
+        <Image source={item.photoSource} style={styles.photo} resizeMode="cover" />
+      )}
       <View>
         <Menu
           visible={showItemMenu === item.id}
