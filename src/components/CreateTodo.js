@@ -11,13 +11,16 @@ import {
 } from 'react-native';
 import DatePicker from 'react-native-datepicker';
 import ImagePicker from 'react-native-image-picker';
+import uuid from 'uuid/v4';
 import ColorPicker from './ColorPicker';
+import { useStateValue } from '../state/StateContext';
 import { Button } from 'react-native-paper';
-import { RED, BLUE, DATE_FORMAT } from '../constants';
+import { ADD_TODO, RED, BLUE, DATE_FORMAT } from '../constants';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/Feather';
 
-export default function CreateTodo({ modalVisible, toggleModal, addTodo, editTodo, itemToEdit }) {
+export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemToEdit }) {
+  const [{ todos }, dispatch] = useStateValue();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
@@ -47,8 +50,12 @@ export default function CreateTodo({ modalVisible, toggleModal, addTodo, editTod
       return;
     }
 
-    addTodo(item);
-    clearForm();
+    // addTodo(item);
+    dispatch({
+      type: 'ADD_TODO',
+      todo: { id: uuid(), ...item },
+    });
+    closeForm();
   }
 
   function closeForm() {
@@ -183,13 +190,6 @@ export default function CreateTodo({ modalVisible, toggleModal, addTodo, editTod
     </Modal>
   );
 }
-
-// export default React.memo(
-//   CreateTodo,
-//   (prevProps, nextProps) =>
-//     prevProps.modalVisible === nextProps.modalVisible ||
-//     prevProps.itemToEdit === nextProps.itemToEdit
-// );
 
 const styles = StyleSheet.create({
   wrapper: {

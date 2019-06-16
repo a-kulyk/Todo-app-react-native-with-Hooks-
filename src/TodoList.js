@@ -1,14 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { TodoContext } from './AppContainer';
-import uuid from 'uuid/v4';
+import { useStateValue } from './state/StateContext';
+import { ADD_TODO, EDIT_TODO } from './constants';
 import { FAB } from 'react-native-paper';
 import CreateTodo from './components/CreateTodo';
 import TodoCard from './components/TodoCard';
 
-export default function TodoList() {
-  const { todos, setTodo, getFilteredTodos } = useContext(TodoContext);
-
+export default function TodoList({ getFilteredTodos }) {
+  const [{ todos }, dispatch] = useStateValue();
   const [modalVisible, setModalVisible] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
   const [showItemMenu, setShowItemMenu] = useState(false);
@@ -18,37 +17,26 @@ export default function TodoList() {
   }
 
   function addTodo(newTodo) {
-    setTodo([...todos, { id: uuid(), ...newTodo }]);
+    dispatch({
+      type: ADD_TODO,
+      todo: { id: uuid(), ...newTodo },
+    });
     toggleModal();
   }
 
-  function complete(id) {
-    const editedTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    );
-    setTodo(editedTodos);
-  }
-
-  function deleteItem(id) {
-    const updatedList = todos.filter(todo => todo.id !== id);
-
-    setTodo(updatedList);
-    setShowItemMenu(false);
-  }
-
-  function editItem(id) {
-    const itemToEdit = todos.find(todo => todo.id === id);
-
-    setItemToEdit(itemToEdit);
+  function openEditing(todoItem) {
+    setItemToEdit(todoItem);
     toggleModal();
     setShowItemMenu(false);
   }
 
   function editTodo(todo) {
-    const updatedList = todos.map(item => (item.id === todo.id ? todo : item));
+    dispatch({
+      type: EDIT_TODO,
+      todo,
+    });
 
     setItemToEdit(null);
-    setTodo(updatedList);
     toggleModal();
   }
 
@@ -57,13 +45,11 @@ export default function TodoList() {
       {todos.length === 0 ? <Text style={styles.noItems}>No items to show</Text> : null}
 
       <ScrollView style={styles.container}>
-        {getFilteredTodos().map(item => (
+        {getFilteredTodos(todos).map(item => (
           <TodoCard
             key={item.id}
             item={item}
-            complete={complete}
-            deleteItem={deleteItem}
-            edit={editItem}
+            openEditing={openEditing}
             showItemMenu={showItemMenu}
             setShowItemMenu={setShowItemMenu}
           />

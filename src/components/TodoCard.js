@@ -2,15 +2,12 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, Text, View, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Menu, IconButton } from 'react-native-paper';
+import { COMPLETE_TODO, REMOVE_TODO } from '../constants';
+import { useStateValue } from '../state/StateContext';
 
-export default function TodoCard({
-  item,
-  complete,
-  deleteItem,
-  edit,
-  showItemMenu,
-  setShowItemMenu,
-}) {
+export default function TodoCard({ item, openEditing, showItemMenu, setShowItemMenu }) {
+  const [appState, dispatch] = useStateValue();
+
   return (
     <View
       style={[
@@ -19,7 +16,10 @@ export default function TodoCard({
         item.completed ? { opacity: 0.7 } : {},
       ]}
     >
-      <TouchableOpacity onPress={() => complete(item.id)} style={styles.icon}>
+      <TouchableOpacity
+        onPress={() => dispatch({ type: COMPLETE_TODO, id: item.id })}
+        style={styles.icon}
+      >
         {item.completed ? <Icon name="check-square" size={20} /> : <Icon name="square" size={20} />}
       </TouchableOpacity>
       <View style={styles.content}>
@@ -41,14 +41,14 @@ export default function TodoCard({
           <Menu.Item
             style={styles.menuItem}
             onPress={() => {
-              edit(item.id);
+              openEditing(item);
             }}
             title="Edit"
           />
           <Menu.Item
             style={styles.menuItem}
             onPress={() => {
-              deleteItem(item.id);
+              dispatch({ type: REMOVE_TODO, id: item.id });
             }}
             title="Delete"
           />
