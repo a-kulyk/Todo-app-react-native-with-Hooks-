@@ -13,7 +13,7 @@ export const PALETTE = [RED, GREEN, YELLOW, PURPLE, BLUE];
 
 export const ALL = 'All';
 export const IN_PROGRESS = 'Active';
-export const COMPLETED = 'Completed';
+export const COMPLETED = 'Done';
 export const OVERDUE = 'Overdue';
 export const COLOR = 'By Color';
 

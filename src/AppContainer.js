@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   container: {
     flex: 1,
     alignItems: 'center',
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   filter: {
     flexDirection: 'row',
     height: 50,
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     borderTopWidth: 1,
     borderTopColor: '#E7E7E7',
   },
@@ -126,7 +127,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 'auto',
   },
 
   activeTab: {
