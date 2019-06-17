@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, Text, View, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Menu, IconButton } from 'react-native-paper';
-import { COMPLETE_TODO, REMOVE_TODO } from '../constants';
+import { COMPLETE_TODO, REMOVE_TODO, SET_ITEM_TO_EDIT } from '../constants';
 import { useStateValue } from '../state/StateContext';
 
 export default function TodoCard({ item, openEditing, showItemMenu, setShowItemMenu }) {
-  const [appState, dispatch] = useStateValue();
+  const { dispatch } = useStateValue();
 
   return (
     <View
@@ -30,30 +30,34 @@ export default function TodoCard({ item, openEditing, showItemMenu, setShowItemM
       {item.photoSource && (
         <Image source={item.photoSource} style={styles.photo} resizeMode="cover" />
       )}
-      <View>
-        <Menu
-          visible={showItemMenu === item.id}
-          onDismiss={() => setShowItemMenu(false)}
-          anchor={
-            <IconButton icon="more-vert" size={20} onPress={() => setShowItemMenu(item.id)} />
-          }
-        >
-          <Menu.Item
-            style={styles.menuItem}
-            onPress={() => {
-              openEditing(item);
-            }}
-            title="Edit"
+      <Menu
+        visible={showItemMenu === item.id}
+        onDismiss={() => setShowItemMenu(false)}
+        anchor={
+          <IconButton
+            icon="more-vert"
+            style={{ margin: 0 }}
+            size={20}
+            onPress={() => setShowItemMenu(item.id)}
           />
-          <Menu.Item
-            style={styles.menuItem}
-            onPress={() => {
-              dispatch({ type: REMOVE_TODO, id: item.id });
-            }}
-            title="Delete"
-          />
-        </Menu>
-      </View>
+        }
+      >
+        <Menu.Item
+          style={styles.menuItem}
+          onPress={() => {
+            dispatch({ type: SET_ITEM_TO_EDIT, itemToEdit: item });
+            openEditing();
+          }}
+          title="Edit"
+        />
+        <Menu.Item
+          style={styles.menuItem}
+          onPress={() => {
+            dispatch({ type: REMOVE_TODO, id: item.id });
+          }}
+          title="Delete"
+        />
+      </Menu>
     </View>
   );
 }

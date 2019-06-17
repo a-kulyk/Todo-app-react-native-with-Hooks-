@@ -14,61 +14,75 @@ import ImagePicker from 'react-native-image-picker';
 import uuid from 'uuid/v4';
 import ColorPicker from './ColorPicker';
 import { useStateValue } from '../state/StateContext';
-import { Button } from 'react-native-paper';
-import { ADD_TODO, RED, BLUE, DATE_FORMAT } from '../constants';
+import { ADD_TODO, EDIT_TODO, RED, BLUE, DATE_FORMAT } from '../constants';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/Feather';
 
-export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemToEdit }) {
-  const [{ todos }, dispatch] = useStateValue();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [photoSource, setPhotoSource] = useState(null);
-  const [color, setColor] = useState(RED);
+export default function CreateTodo({ toggleModal }) {
+  const {
+    appState: { itemToEdit },
+    dispatch,
+  } = useStateValue();
+  const initialState = {
+    title: '',
+    description: '',
+    date: '',
+    photoSource: null,
+    color: RED,
+    invalidFields: [],
+  };
+  const [formState, setFormState] = useState({ ...initialState });
 
   useEffect(() => {
     if (itemToEdit) {
-      setTitle(itemToEdit.title);
-      setDescription(itemToEdit.description);
-      setDate(itemToEdit.date);
-      setPhotoSource(itemToEdit.photoSource);
-      setColor(itemToEdit.color);
+      setFormState({ ...initialState, ...itemToEdit });
     }
-  }, [itemToEdit, modalVisible]);
+  }, [itemToEdit]);
 
   function save() {
-    if (title.trim() === '' || description.trim() === '') {
+    let invalid = [];
+    if (formState.title.trim() === '') {
+      invalid.push('title');
+    }
+    if (formState.description.trim() === '') {
+      invalid.push('description');
+    }
+
+    if (invalid.length > 0) {
+      setFormState({ ...formState, invalidFields: invalid });
       return;
     }
 
-    const item = { title, description, date, photoSource, color, completed: false };
+    const { invalidFields, ...omitInvalids } = formState;
+    const item = { ...omitInvalids, completed: false };
 
     if (itemToEdit) {
-      editTodo({ id: itemToEdit.id, ...item });
-      clearForm();
+      dispatch({
+        type: EDIT_TODO,
+        todo: item,
+      });
+    } else {
+      dispatch({
+        type: ADD_TODO,
+        todo: { id: uuid(), ...item },
+      });
+    }
+
+    toggleModal();
+  }
+
+  function isInvalid(field) {
+    return formState.invalidFields.includes(field);
+  }
+
+  function onRequiredChange(fieldValue, fieldName) {
+    if (isInvalid(fieldName)) {
+      const updatedInvalidFields = formState.invalidFields.filter(i => i !== fieldName);
+      setFormState({ ...formState, invalidFields: updatedInvalidFields });
       return;
     }
 
-    // addTodo(item);
-    dispatch({
-      type: 'ADD_TODO',
-      todo: { id: uuid(), ...item },
-    });
-    closeForm();
-  }
-
-  function closeForm() {
-    toggleModal();
-    clearForm();
-  }
-
-  function clearForm() {
-    setTitle('');
-    setDescription('');
-    setDate('');
-    setPhotoSource(null);
-    setColor(RED);
+    setFormState({ ...formState, [fieldName]: fieldValue });
   }
 
   function renderDatePicker() {
@@ -76,7 +90,7 @@ export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemTo
       <DatePicker
         style={styles.date}
         showIcon={false}
-        date={date}
+        date={formState.date}
         mode="date"
         placeholder="Due Date"
         format={DATE_FORMAT}
@@ -94,9 +108,7 @@ export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemTo
             color: '#A1A1A1',
           },
         }}
-        onDateChange={date => {
-          setDate(date);
-        }}
+        onDateChange={date => setFormState({ ...formState, date })}
       />
     );
   }
@@ -116,12 +128,13 @@ export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemTo
       } else if (response.uri) {
         const source = { uri: response.uri };
 
-        setPhotoSource(source);
+        setFormState({ ...formState, photoSource: source });
       }
     });
   }
 
   function renderImagePicker() {
+    const { photoSource } = formState;
     return (
       <View style={styles.photoWrapper}>
         <TouchableWithoutFeedback onPress={selectPhoto}>
@@ -134,7 +147,7 @@ export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemTo
           </View>
         </TouchableWithoutFeedback>
         {photoSource && (
-          <TouchableOpacity onPress={() => setPhotoSource(null)}>
+          <TouchableOpacity onPress={() => setFormState({ ...formState, photoSource: null })}>
             <Icon name="x" size={30} color="black" />
           </TouchableOpacity>
         )}
@@ -146,25 +159,25 @@ export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemTo
     <Modal
       animationType="slide"
       transparent={false}
-      visible={modalVisible}
+      visible={true}
       onRequestClose={toggleModal}
       style={{ margin: 20 }}
     >
       <View style={styles.wrapper}>
         <View>
           <TextInput
-            value={title}
+            value={formState.title}
             placeholder="Title"
-            onChangeText={setTitle}
-            style={styles.input}
+            onChangeText={value => onRequiredChange(value, 'title')}
+            style={[styles.input, isInvalid('title') ? styles.invalid : {}]}
           />
 
           <TextInput
-            value={description}
+            value={formState.description}
             placeholder="Description"
-            onChangeText={setDescription}
+            onChangeText={value => onRequiredChange(value, 'description')}
             multiline={true}
-            style={styles.textArea}
+            style={[styles.textArea, isInvalid('description') ? styles.invalid : {}]}
           />
 
           {renderDatePicker()}
@@ -174,17 +187,24 @@ export default function CreateTodo({ modalVisible, toggleModal, editTodo, itemTo
           <View style={{ marginBottom: 50 }}>
             <Text style={{ paddingBottom: 15 }}>Add color tag:</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-              <ColorPicker onSelect={setColor} selectedColor={color} />
+              <ColorPicker
+                onSelect={color => setFormState({ ...formState, color })}
+                selectedColor={formState.color}
+              />
             </View>
           </View>
         </View>
-        <View style={styles.buttons}>
-          <Button mode="outlined" onPress={closeForm} contentStyle={{ width: 150 }} color={BLUE}>
-            Cancel
-          </Button>
-          <Button mode="contained" onPress={save} contentStyle={{ width: 150 }} color={BLUE}>
-            Save
-          </Button>
+        <View style={styles.buttonsRow}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={[styles.button, { backgroundColor: 'white' }]}
+            onPress={toggleModal}
+          >
+            <Text style={[styles.btnText, { color: '#4b4b4b' }]}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.7} style={styles.button} onPress={save}>
+            <Text style={styles.btnText}>Save</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -214,6 +234,10 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderStyle: 'solid',
     marginBottom: 25,
+  },
+
+  invalid: {
+    borderColor: RED,
   },
 
   date: {
@@ -249,8 +273,25 @@ const styles = StyleSheet.create({
     width: 120,
   },
 
-  buttons: {
+  buttonsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-end',
+  },
+
+  button: {
+    width: 100,
+    height: 40,
+    marginLeft: 10,
+    backgroundColor: BLUE,
+    borderRadius: 5,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+  },
+
+  btnText: {
+    color: 'white',
+    fontSize: 16,
   },
 });

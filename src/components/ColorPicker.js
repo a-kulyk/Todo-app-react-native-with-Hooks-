@@ -1,21 +1,25 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-import { RED, GREEN, YELLOW, PURPLE, BLUE } from '../constants';
+import { PALETTE, RED } from '../constants';
 
 export default function ColorPicker({ onSelect, selectedColor }) {
-  const [selected, setSelected] = useState(selectedColor || RED);
+  const [selected, setSelected] = useState(RED);
+
+  useEffect(() => {
+    if (selectedColor) {
+      setSelected(selectedColor);
+    }
+  }, [selectedColor]);
 
   const choose = color => {
     setSelected(color);
     onSelect(color);
   };
 
-  const palette = [RED, GREEN, YELLOW, PURPLE, BLUE];
-
   return (
     <Fragment>
-      {palette.map(color => (
+      {PALETTE.map(color => (
         <TouchableOpacity
           onPress={() => choose(color)}
           style={[styles.item, { backgroundColor: color }]}

@@ -1,43 +1,29 @@
-import React, { useState, useContext } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useStateValue } from './state/StateContext';
-import { ADD_TODO, EDIT_TODO } from './constants';
-import { FAB } from 'react-native-paper';
+import { SET_ITEM_TO_EDIT } from './constants';
+import Icon from 'react-native-vector-icons/Feather';
 import CreateTodo from './components/CreateTodo';
 import TodoCard from './components/TodoCard';
 
 export default function TodoList({ getFilteredTodos }) {
-  const [{ todos }, dispatch] = useStateValue();
+  const {
+    appState: { todos, itemToEdit },
+    dispatch,
+  } = useStateValue();
   const [modalVisible, setModalVisible] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState(null);
   const [showItemMenu, setShowItemMenu] = useState(false);
 
   function toggleModal() {
+    if (itemToEdit && modalVisible) {
+      dispatch({ type: SET_ITEM_TO_EDIT, itemToEdit: null });
+    }
     setModalVisible(!modalVisible);
   }
 
-  function addTodo(newTodo) {
-    dispatch({
-      type: ADD_TODO,
-      todo: { id: uuid(), ...newTodo },
-    });
-    toggleModal();
-  }
-
   function openEditing(todoItem) {
-    setItemToEdit(todoItem);
     toggleModal();
     setShowItemMenu(false);
-  }
-
-  function editTodo(todo) {
-    dispatch({
-      type: EDIT_TODO,
-      todo,
-    });
-
-    setItemToEdit(null);
-    toggleModal();
   }
 
   return (
@@ -55,16 +41,12 @@ export default function TodoList({ getFilteredTodos }) {
           />
         ))}
       </ScrollView>
-      {modalVisible && (
-        <CreateTodo
-          toggleModal={toggleModal}
-          modalVisible={modalVisible}
-          addTodo={addTodo}
-          editTodo={editTodo}
-          itemToEdit={itemToEdit}
-        />
-      )}
-      <FAB style={styles.fab} icon="add" color="white" onPress={toggleModal} />
+
+      {modalVisible && <CreateTodo toggleModal={toggleModal} />}
+
+      <TouchableOpacity style={styles.fab} onPress={toggleModal} activeOpacity={0.7}>
+        <Icon name="plus" size={20} color="white" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -90,5 +72,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#2980B9',
     right: 30,
     bottom: 15,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
   },
 });

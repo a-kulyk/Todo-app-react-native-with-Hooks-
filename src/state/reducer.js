@@ -1,11 +1,11 @@
-import { ADD_TODO, COMPLETE_TODO, EDIT_TODO, REMOVE_TODO } from '../constants';
+import { ADD_TODO, COMPLETE_TODO, EDIT_TODO, REMOVE_TODO, SET_ITEM_TO_EDIT } from '../constants';
 
 const addTodo = (todo, state) => {
   const updatedTodos = [...state.todos];
 
   updatedTodos.push(todo);
 
-  return { todos: updatedTodos };
+  return { ...state, todos: updatedTodos };
 };
 
 const editTodo = (todo, state) => {
@@ -14,7 +14,7 @@ const editTodo = (todo, state) => {
 
   updatedTodos[updatedItemIndex] = todo;
 
-  return { todos: updatedTodos };
+  return { ...state, todos: updatedTodos };
 };
 
 const completeTodo = (id, state) => {
@@ -24,7 +24,7 @@ const completeTodo = (id, state) => {
 
   updatedTodos[updatedItemIndex] = { ...updatedItem, completed: !updatedItem.completed };
 
-  return { todos: updatedTodos };
+  return { ...state, todos: updatedTodos };
 };
 
 const removeTodo = (id, state) => {
@@ -33,13 +33,15 @@ const removeTodo = (id, state) => {
 
   updatedTodos.splice(updatedItemIndex, 1);
 
-  return { todos: updatedTodos };
+  return { ...state, todos: updatedTodos };
 };
 
 export const reducer = (state, action) => {
   switch (action.type) {
     case ADD_TODO:
       return addTodo(action.todo, state);
+    case SET_ITEM_TO_EDIT:
+      return { ...state, itemToEdit: action.itemToEdit };
     case EDIT_TODO:
       return editTodo(action.todo, state);
     case COMPLETE_TODO:

@@ -9,7 +9,7 @@ import { RED, BLUE, ALL, IN_PROGRESS, COMPLETED, OVERDUE, COLOR, DATE_FORMAT } f
 
 export default function AppContainer() {
   const [initialState, setInitialState] = useState(null);
-  const [filter, setActiveFilter] = useState(ALL);
+  const [filter, setActiveFilter] = useState(IN_PROGRESS);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedColor, setSelectedColor] = useState(RED);
 
@@ -59,6 +59,8 @@ export default function AppContainer() {
   };
 
   const openColorPicker = () => {
+    // if (!todos.includes(todo => todo.color === selectedColor)) {
+    // }
     setShowColorPicker(true);
     setFilter(COLOR);
   };
@@ -84,6 +86,7 @@ export default function AppContainer() {
         <View style={styles.filter}>
           {[ALL, IN_PROGRESS, COMPLETED, OVERDUE, COLOR].map((filterable, idx) => (
             <TouchableOpacity
+              activeOpacity={0.8}
               onPress={() => {
                 filterable === COLOR ? openColorPicker() : setFilter(filterable);
               }}
@@ -116,6 +119,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 50,
     justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: '#E7E7E7',
   },
   tabItem: {
     flex: 1,

@@ -19,7 +19,7 @@ export const StateProvider = ({ initialState, children }) => {
     storeData();
   }, [appState]);
 
-  return <StateContext.Provider value={[appState, dispatch]}>{children}</StateContext.Provider>;
+  return <StateContext.Provider value={{ appState, dispatch }}>{children}</StateContext.Provider>;
 };
 
 export const useStateValue = () => useContext(StateContext);
