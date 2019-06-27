@@ -96,10 +96,7 @@ export default function TodoCard({ item, openEditing, showItemMenu, setShowItemM
           <View style={{ flex: 1, backgroundColor: 'black' }}>
             <Animated.View
               {...panResponder.panHandlers}
-              style={[
-                { transform: position.getTranslateTransform() },
-                { height: SCREEN_HEIGHT - 120, width: SCREEN_WIDTH },
-              ]}
+              style={[{ transform: position.getTranslateTransform() }, { flex: 1 }]}
             >
               <Image source={item.photoSource} style={{ flex: 1 }} resizeMode="contain" />
             </Animated.View>
