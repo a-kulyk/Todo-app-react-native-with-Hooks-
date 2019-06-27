@@ -59,8 +59,6 @@ export default function AppContainer() {
   };
 
   const openColorPicker = () => {
-    // if (!todos.includes(todo => todo.color === selectedColor)) {
-    // }
     setShowColorPicker(true);
     setFilter(COLOR);
   };

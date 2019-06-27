@@ -30,16 +30,18 @@ export default function TodoList({ getFilteredTodos }) {
     <View style={styles.container}>
       {todos.length === 0 ? <Text style={styles.noItems}>No items to show</Text> : null}
 
-      <ScrollView style={styles.container}>
-        {getFilteredTodos(todos).map(item => (
-          <TodoCard
-            key={item.id}
-            item={item}
-            openEditing={openEditing}
-            showItemMenu={showItemMenu}
-            setShowItemMenu={setShowItemMenu}
-          />
-        ))}
+      <ScrollView>
+        <View style={{ paddingBottom: 50 }}>
+          {getFilteredTodos(todos).map(item => (
+            <TodoCard
+              key={item.id}
+              item={item}
+              openEditing={openEditing}
+              showItemMenu={showItemMenu}
+              setShowItemMenu={setShowItemMenu}
+            />
+          ))}
+        </View>
       </ScrollView>
 
       {modalVisible && <CreateTodo toggleModal={toggleModal} />}

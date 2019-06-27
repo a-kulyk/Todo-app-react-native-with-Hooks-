@@ -1,12 +1,38 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  View,
+  Modal,
+  Image,
+  Dimensions,
+  Animated,
+  PanResponder,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Menu, IconButton } from 'react-native-paper';
 import { COMPLETE_TODO, REMOVE_TODO, SET_ITEM_TO_EDIT } from '../constants';
 import { useStateValue } from '../state/StateContext';
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
 export default function TodoCard({ item, openEditing, showItemMenu, setShowItemMenu }) {
   const { dispatch } = useStateValue();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const position = new Animated.ValueXY();
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderMove: (evt, gestureState) => {
+      if (Math.abs(gestureState.dy) > 150) {
+        setModalVisible(false);
+      }
+      position.setValue({ x: 0, y: gestureState.dy });
+    },
+    onPanResponderRelease: () => {},
+  });
 
   return (
     <View
@@ -28,7 +54,9 @@ export default function TodoCard({ item, openEditing, showItemMenu, setShowItemM
         <View>{item.date ? <Text style={styles.date}>Deadline: {item.date}</Text> : null}</View>
       </View>
       {item.photoSource && (
-        <Image source={item.photoSource} style={styles.photo} resizeMode="cover" />
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Image source={item.photoSource} style={styles.photo} resizeMode="cover" />
+        </TouchableOpacity>
       )}
       <Menu
         visible={showItemMenu === item.id}
@@ -58,6 +86,26 @@ export default function TodoCard({ item, openEditing, showItemMenu, setShowItemM
           title="Delete"
         />
       </Menu>
+      {modalVisible && (
+        <Modal
+          animationType="fade "
+          transparent={false}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={{ flex: 1, backgroundColor: 'black' }}>
+            <Animated.View
+              {...panResponder.panHandlers}
+              style={[
+                { transform: position.getTranslateTransform() },
+                { height: SCREEN_HEIGHT - 120, width: SCREEN_WIDTH },
+              ]}
+            >
+              <Image source={item.photoSource} style={{ flex: 1 }} resizeMode="contain" />
+            </Animated.View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
