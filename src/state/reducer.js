@@ -1,12 +1,6 @@
 import { ADD_TODO, COMPLETE_TODO, EDIT_TODO, REMOVE_TODO, SET_ITEM_TO_EDIT } from '../constants';
 
-const addTodo = (todo, state) => {
-  const updatedTodos = [...state.todos];
-
-  updatedTodos.push(todo);
-
-  return { ...state, todos: updatedTodos };
-};
+const addTodo = (todo, state) => ({ ...state, todos: [todo, ...state.todos] });
 
 const editTodo = (todo, state) => {
   const updatedTodos = [...state.todos];

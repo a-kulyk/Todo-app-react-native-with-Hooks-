@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import { StateProvider } from './state/StateContext';
@@ -23,6 +24,7 @@ export default function AppContainer() {
 
       if (value !== null) {
         setInitialState({ todos: JSON.parse(value) });
+        SplashScreen.hide();
       } else {
         setInitialState({ todos: [] });
       }
